@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title> Check In </title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+
+<body>
+  <div class="page-wrapper">
+    <h1> = Check In = </h1>
+    <h3>Please Care For This Plant!</h3>
+    <h4 id="last-watered">Last Watered ? Hours Ago</h4>
+    <h4 id="streak">Your Plant Has Been Alive For ? Days!</h4>
+	
+    <div class="plant">
+        <img src="pot.png" class="img-pot" alt="The pot the plant is in">
+        <img id="plant-image" src="plant.png" class="img-plant" alt="The plant">
+		
+		<img src="watering-can.gif" id="watering-can" alt="Watering Can">
+    </div>
+	
+
+	
+	
+	<!-- Script For Last Watered -->
+	<script>
+	  // Get a reference to the h4
+	  const lastWatered = document.getElementById('last-watered');
+	  const streak = document.getElementById('streak');
+	  
+	  //This gets the localdata for lastWatered
+	  let lastWateredTimestamp = localStorage.getItem('lastWatered');
+	  
+	  if (!lastWateredTimestamp) { //if it dosnt exist
+	  
+		lastWatered.textContent = `‎ `;
+		streak.textContent = '';
+		
+	  } else { //if it does exist
+	  
+			lastWateredTimestamp = parseInt(lastWateredTimestamp, 10); // convert string → number
+			
+			// Calculate difference in milliseconds
+			const diffMs = Date.now() - lastWateredTimestamp;
+
+			// Convert milliseconds to hours
+			let hoursAgo = Math.round(diffMs / (1000 * 60 * 60));
+			
+			if (hoursAgo < 48) {
+
+				lastWatered.textContent = `Last Watered ${hoursAgo} Hour${hoursAgo === 1 ? '' : 's'} Ago`;
+				
+				
+				console.log('here');
+				
+				const plantImage = document.getElementById('plant-image');
+				// Calculate filter values
+				let saturation = Math.max(0.2, 1 - hoursAgo * 0.0075); // e.g., 0.2 → 1
+				let brightness = Math.max(0.5, 1.2 - hoursAgo * 0.005);
+
+				plantImage.style.filter = `saturate(${saturation}) brightness(${brightness})`;
+				
+				let hueShift = Math.min(60, hoursAgo * -0.8); // max 60°
+				plantImage.style.filter += ` hue-rotate(${hueShift}deg)`;
+				
+				
+				
+				
+				//Streak
+				let firstWateredTimestamp = localStorage.getItem('firstWatered');
+				if (firstWateredTimestamp) {
+					firstWateredTimestamp = parseInt(firstWateredTimestamp, 10);
+					const diffMsFirst = Date.now() - firstWateredTimestamp;
+					const daysAgo = Math.round(diffMsFirst / (1000 * 60 * 60 * 24));
+					streak.textContent = `Your Plant Has Been Alive For ${daysAgo} Day${daysAgo === 1 ? '' : 's'}!`;
+				} else {
+					streak.textContent = '';
+				}
+				
+				
+			} else {
+			
+				lastWatered.textContent = 'Last Watered > 48 Hours Ago. Here is a new Plant.';
+				streak.textContent = '';
+				localStorage.removeItem('firstWatered');
+			
+			}
+	  }
+	  
+	</script>
+
+
+    <button id="water-button">Click Me!</button>
+	
+	<script>
+		const button = document.getElementById('water-button');
+		
+		button.addEventListener('click', () => {
+		
+			//streat setup
+			let lastWateredTimestamp = localStorage.getItem('lastWatered');
+			if (!lastWateredTimestamp) {
+				localStorage.setItem('firstWatered', Date.now());
+			}
+			
+			localStorage.setItem('lastWatered', Date.now());
+			lastWatered.textContent = 'Last Watered Just Now';
+			
+			
+				
+			const plantImage = document.getElementById('plant-image');
+			hoursAgo = 0;
+			// Calculate filter values
+			let saturation = Math.max(0.2, 1 - hoursAgo * 0.0075); // e.g., 0.2 → 1
+			let brightness = Math.max(0.5, 1.2 - hoursAgo * 0.005);
+			
+			
+			plantImage.style.transition = 'filter 3s ease';
+
+			plantImage.style.filter = `saturate(${saturation}) brightness(${brightness})`;
+			
+			let hueShift = Math.min(60, hoursAgo * -0.8); // max 60°
+			plantImage.style.filter += ` hue-rotate(${hueShift}deg)`;
+			
+			
+			//Can stuff
+			const wateringCan = document.getElementById('watering-can');
+			wateringCan.style.display = 'block';
+
+			// optionally hide after 2-3 seconds
+			setTimeout(() => {
+				wateringCan.style.display = 'none';
+			}, 3000);
+		});
+	</script>
+  </div>
+</body>
+</html>
+
+
+
+<!-- This does the page scaling i dont really know how -->
+<script>
+function scalePage() {
+    const wrapper = document.querySelector('.page-wrapper');
+    const padding = 40; // leave a little room at top/bottom
+
+    // total height of content
+    const contentHeight = wrapper.offsetHeight + padding;
+    const contentWidth = wrapper.offsetWidth + padding;
+
+    // scale based on height or width if bigger than viewport
+    const scale = Math.min(
+        window.innerHeight / contentHeight,
+        window.innerWidth / contentWidth,
+        1 // don't scale up
+    );
+
+    wrapper.style.transform = `scale(${scale})`;
+}
+
+// initial scale
+scalePage();
+
+// rescale on window resize
+window.addEventListener('resize', scalePage);
+</script>
