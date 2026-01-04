@@ -29,7 +29,22 @@
 	const name = document.getElementById("username");
 	const messsage = document.getElementById("message");
 	
-	name.value = "Person " + Math.ceil(Math.random() * 99);
+	
+	 let username = localStorage.getItem('username');
+	 
+	  if (!username) { //if it dosnt exist
+	  
+		username = "Person " + Math.ceil(Math.random() * 99);
+		name.value = username;
+		localStorage.setItem('username', username);
+		
+	  } else { //if it does exist
+	  
+		name.value = username;
+	  
+	  }
+	
+	
 
     // Connect to the server
     const socket = new WebSocket("wss://server-experimenting-production.up.railway.app");
@@ -53,6 +68,7 @@
 		
       console.log("Sending message");
       socket.send(name.value + ": " + message.value);
+		localStorage.setItem('username', username);
     };
   </script>
 </body>
